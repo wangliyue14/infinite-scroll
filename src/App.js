@@ -1,23 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroller';
+import Card from './components/Card';
 
 function App() {
+  const [nodes, setNodes]  = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+
+  const loadMore = () => {
+    if (!loading) {
+      setLoading(true);
+      fetch(`http://localhost:5000/nodes/${currentPage}`).then(r => r.json()).then((data) => {
+        setNodes([
+          ...nodes,
+          ...data.nodes
+        ]);
+        setHasMore(true);
+        setLoading(false);
+        setCurrentPage(currentPage+1);
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+
+      <div className="Nodes">
+        <InfiniteScroll
+          pageStart={1}
+          loadMore={loadMore}
+          hasMore={hasMore}
+          loader={<div className="loader" key={0}>Loading ...</div>}
+          useWindow={false}
         >
-          Learn React
-        </a>
-      </header>
+          {nodes.map(nodeObj => nodeObj.node).map((node) => (
+            <Card
+              key={node.nid}
+              title={node.title}
+              imageUrl={node.field_photo_image_section}
+              lastUpdate={node.last_update}
+            ></Card>
+          ))}
+        </InfiniteScroll>
+      </div>
     </div>
   );
 }
