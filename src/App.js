@@ -2,6 +2,8 @@ import { useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import Card from './components/Card';
 
+const API_URL = "http://localhost:5000/nodes";
+
 function App() {
   const [nodes, setNodes]  = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,7 +14,7 @@ function App() {
   const loadMore = () => {
     if (!loading) {
       setLoading(true);
-      fetch(`http://localhost:5000/nodes/${currentPage}`).then(r => r.json()).then((data) => {
+      fetch(`${API_URL}/${currentPage}`).then(r => r.json()).then((data) => {
         setNodes([
           ...nodes,
           ...data.nodes
